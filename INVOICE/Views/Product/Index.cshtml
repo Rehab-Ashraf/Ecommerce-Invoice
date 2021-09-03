@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<br />  <br /><br />
+@Html.ActionLink("Add New Product","AddProduct","Product",new { @class= "btn btn-lg btn-info" })
+<div class="container" id="products" ></div>
+
+@section scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+     <script>
+     $(document).ready(function () {
+        Products();
+     });
+     function Products() {
+     
+         
+         $.ajax  
+        ({  
+            type: 'POST',  
+            url: '@Url.Action("ViewAllProduct")',  
+            dataType: 'json',  
+            data: {},  
+            success: function(data)   
+            { 
+                var markup = "";
+                $.each(data, function(i, item)  {
+                 var pid = "/Product/Edit/"+item.ID;
+                 var deleteid = "/Product/Delete/"+item.ID;
+                 var id = item.ID;
+                 markup += '<div class="card col-md-3" style="padding:.5%;background-color: #eee;margin:.25%;border:1px solid black;">'+
+                              '<img class="card-img-top" src="'+item.ImagPath+'" alt="Card image" style="width:100%">'+
+                           '<div class="card-body"><h4 class="card-title">'+item.Name+'</h4><p class="card-text"><strong>Description:</strong>'+item.Description+
+                        '</p><p class="card-text"><strong>Cost:</strong>'+item.Cost+'$</p><a class="btn btn-primary" href="'+pid+'" >Edit</a><a href="'+deleteid+'"  class="btn btn-danger" id="remove">Delete</a> </div></div>';
+                 });
+                 $("#products").html(markup).show();
+         }
+         });
+         return false; 
+         
+
+         }
+     </script>
+}

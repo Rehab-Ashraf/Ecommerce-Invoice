@@ -1,0 +1,44 @@
+﻿
+@model IEnumerable<INVOICE.Models.Product>
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Products</h1>
+    <p class="lead">Sometimes the scent of seasonal hand wash is all we need to rouse our holiday spirits. Available in an array of festive fragrances, our naturally derived gel hand wash will leave your hands soft, clean and ready to be tucked into a pair of fair isle mittens. It really is the most wonderful time of the year.</p>
+    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+<div class="container">
+
+        @foreach (var product in Model)
+        {
+
+            <div class="card col-md-3 " style="border:2px solid black;margin:.25%">
+                <h2 class="card-title">@product.Name</h2>
+                <img class="card-img-top" src="@product.ImagPath" alt="Card image" style="width:90%;">
+                <div class="card-body">
+                    <span class="card-text">@product.Description</span>
+                    <span><strong>@product.Cost$</strong></span>
+                    <hr />
+                    <a id="btn_add" onclick="AddToCart(@product.ID)" class="btn btn-info" style="margin:10px">
+                        <span class="glyphicon glyphicon-shopping-cart"></span> Add To Cart
+                    </a>
+
+                </div>
+            </div>
+
+
+        }
+    </div>
+
+<div class="container" id="products">
+
+</div>
+
+@section scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

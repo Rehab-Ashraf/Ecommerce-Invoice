@@ -1,0 +1,28 @@
+﻿@model IEnumerable<INVOICE.Models.Product>
+@{
+    ViewBag.Title = "ViewAllProduct";
+    Layout = null;
+    
+}
+<br /><br />
+
+      <div class="container">
+
+          @foreach (var product in Model)
+          {
+
+              <div class="card col-md-4" style="padding:.5%">
+
+                  <img class="card-img-top" src="@product.ImagPath" alt="Card image" style="width:100%">
+                  <div class="card-body">
+                      <h4 class="card-title">@product.Name</h4>
+                      <p class="card-text">@product.Description</p>
+                      @Html.ActionLink("Edit", "Edit", "Product", new { id = @product.ID }, new { @class = "btn btn-primary" })
+                      @Html.ActionLink("Delete", "Delete", "Product", new { @class = "btn btn-danger", @productID = product.ID })
+                  </div>
+              </div>
+
+
+          }
+      </div>
+

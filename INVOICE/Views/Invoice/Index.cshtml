@@ -1,0 +1,167 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<div class="container" id="invoice" style="border:3px solid black;margin:2%;width:100%;">
+    
+    <div id="invoiceHeader">
+        
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead class="bg-info">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody class="tbody"></tbody>
+
+            <tfoot id="total">
+            </tfoot>
+        </table>
+    </div>
+    <div id="submit" style="margin:1%"></div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>Confirming Submit Invoice </h3>
+            </div>
+            <div class="modal-body" >
+                <img src="~/Content/Images/question-mark.png" style="margin-left:30%"/>
+                <p style="text-align:center;margin-right:10%">Are you sure you want to submit this invoice</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnAdd" onclick="return Add();">DONE</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="storeProduct"></div>
+@section scripts{
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        
+     $(document).ready(function () {
+        loadInvoice();
+     });
+     function loadInvoice(){
+        customer = {};
+        var invoiceNum = Date.now();
+        var invoiceDate = invoiceNum.toString();
+        $.ajax({
+        url: "/Customer/GetCustomerByID/1",
+        type: "GET",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+        customer = result;
+            var html = '';
+            
+                html += '<h1 style="text-align:center">INVOICE</h1><h3 style="display:inline-block">Invoice Number: </h3> <span style="background-color:aliceblue;font-size:1.25em" id="invoiceNum"> Invoice'+invoiceNum+'</span><br/>';
+                html += '<h3 style="display:inline-block">Invoice Date: </h3><span style="background-color:aliceblue;font-size:1.25em" id="invoiceDate">'+invoiceDate+'</span><br/>';
+                html += '<h3 style="display:inline-block">Client Name:</h3><span style="background-color:aliceblue;font-size:1.25em" id="clientName">'+result.Name+'</span><br/>';
+                html += '<h3 style="display:inline-block">Client Address:</h3><span style="background-color:aliceblue;font-size:1.25em" id="clientAddress">'+result.Address+'</span><br/>';
+                html += '<h3 style="display:inline-block">Client Email:</h3><span style="background-color:aliceblue;font-size:1.25em" id="clientEmail">'+result.Email+'</span>';
+                html += '</tr>';
+            $('#invoiceHeader').html(html);
+        },
+        error: function (errormessage) {
+            alert(errormessage.responseText);
+        }
+
+        });
+        $.ajax({
+        url: "/AddToCart/All",
+        type: "GET",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+        
+            var html = '';
+             products = [];
+            $.each(result, function (key, item) {
+                products.push(item.product);
+                html += '<tr>';
+                html += '<td>' + item.product.ID + '</td>';
+                html += '<td>' + item.product.Name + '</td>';
+                html += '<td>' + item.product.Description + '</td>';
+                html += '<td>' +item.Count  + '</td>';
+                html += '<td>' +  Number(item.product.Cost)*  Number(item.Count)+ '$</td>';
+                html += '</tr>';
+            });
+            $('.tbody').html(html);
+            
+         var sum = 0;
+         var foter = '';
+         var addBtn = '';
+        $.each(result, function (key, item) {
+        sum = Number(item.product.Cost)* Number( item.Count) +sum;
+
+        });
+        foter +='<tr> <td></td> <td></td> <td> <b> Total </b></td> <td id="totalprice">'+sum +'</td>   <td></td></tr>';
+        addBtn +='<button type="button" class="btn btn-lg btn-primary" data-toggle="modal" data-target="#myModal">Submit</button>';
+        $('#total').html(foter);
+        $('#submit').html(addBtn);
+        },
+        error: function (errormessage) {
+            alert(errormessage.responseText);
+        }
+    });
+       
+    }
+
+    function Add() {  
+      
+           invoiceObj = {  
+        InviceNumber: $('#invoiceNum').text(),  
+        Customer: customer,  
+        Products:products,
+        TotalPrice: Number($('#totalprice').text()),
+    };
+         $.ajax({  
+        url: "/Invoice/Create",  
+        data: JSON.stringify(invoiceObj),  
+        type: "POST",  
+        contentType: "application/json;charset=utf-8",  
+        dataType: "json",  
+        success: function (result) {  
+            $('#myModal').modal('hide'); 
+             ClearCart();
+            
+        },  
+        error: function (errormessage) {  
+            alert(errormessage.responseText);  
+        }  
+    });
+        alert(JSON.stringify(invoiceObj));
+     
+}  
+    function ClearCart() {
+
+        $.ajax({
+            url: "/AddToCart/Clear",
+            type: "POST",
+            contentType: "application/json;charset=UTF-8",
+            dataType: "json",
+            success: function (result) {
+                window.location.href="/Invoice/InvoiceCreated";
+            },
+            error: function (errormessage) {
+                alert(errormessage.responseText);
+            }
+        });    
+}
+ 
+
+    </script>
+}
